@@ -1,4 +1,5 @@
 from sqlalchemy import text
+from sqlalchemy.orm import Session
 
 from create_engine import engine
 
@@ -21,3 +22,16 @@ with engine.connect() as conn:
     for row in result:
         print(f'{row.age}-year old {row.firstname} {row.secondname}, from {row.city}, {row.state}.') # print the results
     conn.commit() # commit the transaction to the db
+
+with Session(engine) as session:
+    statement = text("SELECT * FROM friend WHERE age > :age ORDER BY age")
+    result = session.execute(statement, {'age': 22})
+    for row in result:
+        print(f'{row.age}-year old {row.firstname} {row.secondname}, from {row.city}, {row.state}.')
+    
+    session.execute(text("DELETE FROM friend WHERE secondname = :name"), {'name': 'Doe'})
+    result = session.execute(text("SELECT * FROM friend"))
+    for row in result:
+        print(f'{row.age}-year old {row.firstname} {row.secondname}, from {row.city}, {row.state}.')
+    
+    session.commit()
